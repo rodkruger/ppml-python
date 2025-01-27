@@ -2,9 +2,6 @@ import os
 import pandas as pd
 import time
 
-from sklearn.datasets import load_breast_cancer
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.neural_network import MLPClassifier
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -85,30 +82,28 @@ def evaluate(p_exp_name, p_params, ml_model, x_train, y_train, x_test, y_test):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-# Load the Breast Cancer dataset
-data = load_breast_cancer()
-X = data.data
-y = data.target
+X_train_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range22.csv',
+                              header=None).to_numpy()
+y_train_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range22.csv',
+                              header=None).to_numpy().ravel()
+X_test_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range22.csv',
+                             header=None).to_numpy()
+y_test_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range22.csv',
+                             header=None).to_numpy().ravel()
 
-# Normalize the dataset for sigmoid [-2, 2]
-sigmoid_scaler = MinMaxScaler(feature_range=(-2, 2))
-X_sigmoid = sigmoid_scaler.fit_transform(X)
-
-# Normalize the dataset for tanh [0, 1]
-tanh_scaler = MinMaxScaler(feature_range=(0, 1))
-X_tanh = tanh_scaler.fit_transform(X)
-
-# Split the datasets into training and testing sets
-X_train_sigmoid, X_test_sigmoid, y_train_sigmoid, y_test_sigmoid = (
-    train_test_split(X_sigmoid, y, test_size=0.3, stratify=y, random_state=42))
-X_train_tanh, X_test_tanh, y_train_tanh, y_test_tanh = (
-    train_test_split(X_tanh, y, test_size=0.3, stratify=y, random_state=42))
+X_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range01.csv',
+                           header=None).to_numpy()
+y_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range01.csv',
+                           header=None).to_numpy().ravel()
+X_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range01.csv', header=None).to_numpy()
+y_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range01.csv',
+                          header=None).to_numpy().ravel()
 
 # Train Perceptron models with sigmoid and tanh activation functions
 for epoch in range(1, 11):
     # Sigmoid activation
     g_exp_name = f'plain_sigmoid_{epoch}'
-    g_params = ExperimentParams(epoch, len(X), 0.7)
+    g_params = ExperimentParams(epoch, len(X_train_sigmoid) + len(X_test_sigmoid), 0.7)
 
     perceptron_sigmoid = MLPClassifier(hidden_layer_sizes=(), activation='logistic', max_iter=epoch, random_state=42,
                                        solver='sgd', learning_rate_init=0.01)
@@ -117,7 +112,7 @@ for epoch in range(1, 11):
 
     # Tanh activation
     g_exp_name = f'plain_tanh_{epoch}'
-    g_params = ExperimentParams(epoch, len(X), 0.7)
+    g_params = ExperimentParams(epoch, len(X_train_tanh) + len(X_test_tanh), 0.7)
 
     perceptron_sigmoid = MLPClassifier(hidden_layer_sizes=(), activation='tanh', max_iter=epoch, random_state=42,
                                        solver='sgd', learning_rate_init=0.01)
