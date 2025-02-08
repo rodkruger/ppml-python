@@ -1,7 +1,9 @@
+import numpy as np
 import os
 import pandas as pd
 import time
 
+from sklearn.linear_model import Perceptron
 from sklearn.neural_network import MLPClassifier
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -91,30 +93,33 @@ X_test_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_fea
 y_test_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range22.csv',
                              header=None).to_numpy().ravel()
 
-X_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range01.csv',
+X_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range11.csv',
                            header=None).to_numpy()
-y_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range01.csv',
+y_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range11.csv',
                            header=None).to_numpy().ravel()
-X_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range01.csv', header=None).to_numpy()
-y_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range01.csv',
+X_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range11.csv', header=None).to_numpy()
+y_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range11.csv',
                           header=None).to_numpy().ravel()
 
 # Train Perceptron models with sigmoid and tanh activation functions
-for epoch in range(1, 11):
+for epoch in range(1, 2):
     # Sigmoid activation
     g_exp_name = f'plain_sigmoid_{epoch}'
     g_params = ExperimentParams(epoch, len(X_train_sigmoid) + len(X_test_sigmoid), 0.7)
 
     perceptron_sigmoid = MLPClassifier(hidden_layer_sizes=(), activation='logistic', max_iter=epoch, random_state=42,
-                                       solver='sgd', learning_rate_init=0.01)
-
+                                       solver='sgd', learning_rate_init=0.001)
     evaluate(g_exp_name, g_params, perceptron_sigmoid, X_train_sigmoid, y_train_sigmoid, X_test_sigmoid, y_test_sigmoid)
 
     # Tanh activation
     g_exp_name = f'plain_tanh_{epoch}'
     g_params = ExperimentParams(epoch, len(X_train_tanh) + len(X_test_tanh), 0.7)
 
-    perceptron_sigmoid = MLPClassifier(hidden_layer_sizes=(), activation='tanh', max_iter=epoch, random_state=42,
-                                       solver='sgd', learning_rate_init=0.01)
-
-    evaluate(g_exp_name, g_params, perceptron_sigmoid, X_train_sigmoid, y_train_sigmoid, X_test_sigmoid, y_test_sigmoid)
+    """
+    perceptron_tanh = MLPClassifier(hidden_layer_sizes=(), activation='tanh', max_iter=epoch, random_state=42,
+                                    solver='sgd', learning_rate_init=0.001)
+    """
+    # perceptron_tanh = Perceptron(max_iter=epoch, random_state=42)
+    perceptron_tanh = Perceptron(max_iter=epoch, random_state=42)
+    evaluate(g_exp_name, g_params, perceptron_tanh, X_train_tanh, y_train_tanh, X_test_tanh, y_test_tanh)
+    print(np.tanh(perceptron_tanh.decision_function(X_test_tanh)))

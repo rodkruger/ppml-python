@@ -15,8 +15,8 @@ y = data.target
 sigmoid_scaler = MinMaxScaler(feature_range=(-2, 2))
 X_sigmoid = sigmoid_scaler.fit_transform(X)
 
-# Normalize the dataset for tanh activation [0, 1]
-tanh_scaler = MinMaxScaler(feature_range=(0, 1))
+# Normalize the dataset for tanh activation [-1, 1]
+tanh_scaler = MinMaxScaler(feature_range=(-1, 1))
 X_tanh = tanh_scaler.fit_transform(X)
 
 # Split the datasets into training and testing sets
@@ -37,11 +37,11 @@ pd.DataFrame(y_test_sigmoid).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/test
 X_train_tanh, X_test_tanh, y_train_tanh, y_test_tanh = (
     train_test_split(X_tanh, y, test_size=0.3, stratify=y, random_state=42))
 
-pd.DataFrame(X_train_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range01.csv',
+pd.DataFrame(X_train_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range11.csv',
                                   index=False, header=False)
-pd.DataFrame(y_train_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range01.csv',
+pd.DataFrame(y_train_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range11.csv',
                                   index=False, header=False)
-pd.DataFrame(X_test_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range01.csv',
+pd.DataFrame(X_test_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range11.csv',
                                  index=False, header=False)
-pd.DataFrame(y_test_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range01.csv',
+pd.DataFrame(y_test_tanh).to_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range11.csv',
                                  index=False, header=False)
