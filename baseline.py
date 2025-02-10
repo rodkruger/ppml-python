@@ -1,9 +1,7 @@
-import numpy as np
 import os
 import pandas as pd
 import time
 
-from sklearn.linear_model import Perceptron
 from sklearn.neural_network import MLPClassifier
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -84,42 +82,45 @@ def evaluate(p_exp_name, p_params, ml_model, x_train, y_train, x_test, y_test):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-X_train_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range22.csv',
-                              header=None).to_numpy()
-y_train_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range22.csv',
-                              header=None).to_numpy().ravel()
-X_test_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range22.csv',
-                             header=None).to_numpy()
-y_test_sigmoid = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range22.csv',
-                             header=None).to_numpy().ravel()
+def read_dataset(p_dataset_name, p_range):
+    l_train_dataset_path = f"{CONTENT_PATH}/Datasets/{p_dataset_name}/training"
+    l_test_dataset_path = f"{CONTENT_PATH}/Datasets/{p_dataset_name}/testing"
+    l_range = f'range{abs(p_range[0])}{abs(p_range[1])}'
 
-X_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_features_range11.csv',
-                           header=None).to_numpy()
-y_train_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/training_labels_range11.csv',
-                           header=None).to_numpy().ravel()
-X_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_features_range11.csv', header=None).to_numpy()
-y_test_tanh = pd.read_csv(f'{CONTENT_PATH}/Datasets/breast_cancer/testing_labels_range11.csv',
-                          header=None).to_numpy().ravel()
+    x_train = pd.read_csv(f'{l_train_dataset_path}_features_{l_range}.csv', header=None).to_numpy()
+    y_train = pd.read_csv(f'{l_train_dataset_path}_labels_{l_range}.csv', header=None).to_numpy().ravel()
+    x_test = pd.read_csv(f'{l_test_dataset_path}_features_{l_range}.csv', header=None).to_numpy()
+    y_test = pd.read_csv(f'{l_test_dataset_path}_labels_{l_range}.csv', header=None).to_numpy().ravel()
 
-# Train Perceptron models with sigmoid and tanh activation functions
-for epoch in range(1, 2):
-    # Sigmoid activation
-    g_exp_name = f'plain_sigmoid_{epoch}'
-    g_params = ExperimentParams(epoch, len(X_train_sigmoid) + len(X_test_sigmoid), 0.7)
+    return x_train, y_train, x_test, y_test
 
-    perceptron_sigmoid = MLPClassifier(hidden_layer_sizes=(), activation='logistic', max_iter=epoch, random_state=42,
-                                       solver='sgd', learning_rate_init=0.001)
-    evaluate(g_exp_name, g_params, perceptron_sigmoid, X_train_sigmoid, y_train_sigmoid, X_test_sigmoid, y_test_sigmoid)
 
-    # Tanh activation
-    g_exp_name = f'plain_tanh_{epoch}'
-    g_params = ExperimentParams(epoch, len(X_train_tanh) + len(X_test_tanh), 0.7)
+# ----------------------------------------------------------------------------------------------------------------------
 
-    """
-    perceptron_tanh = MLPClassifier(hidden_layer_sizes=(), activation='tanh', max_iter=epoch, random_state=42,
-                                    solver='sgd', learning_rate_init=0.001)
-    """
-    # perceptron_tanh = Perceptron(max_iter=epoch, random_state=42)
-    perceptron_tanh = Perceptron(max_iter=epoch, random_state=42)
-    evaluate(g_exp_name, g_params, perceptron_tanh, X_train_tanh, y_train_tanh, X_test_tanh, y_test_tanh)
-    print(np.tanh(perceptron_tanh.decision_function(X_test_tanh)))
+def evaluate_models(p_dataset_name, p_range):
+    x_train, y_train, x_test, y_test = read_dataset(p_dataset_name, p_range)
+
+    # Build a Perceptron with sigmoid and tanh activation functions
+    for epoch in range(1, 11):
+        # Sigmoid activation --------------------------------------------------
+        l_exp_name = f'Predictions/{p_dataset_name}/plain_sigmoid_{epoch}'
+        l_params = ExperimentParams(epoch, len(x_train) + len(x_test), 0.7)
+
+        perceptron_sigmoid = MLPClassifier(hidden_layer_sizes=(), activation='logistic', max_iter=epoch,
+                                           random_state=42, solver='sgd', learning_rate_init=0.005)
+
+        evaluate(l_exp_name, l_params, perceptron_sigmoid, x_train, y_train, x_test, y_test)
+
+        # Tanh activation -----------------------------------------------------
+        l_exp_name = f'Predictions/{p_dataset_name}/plain_tanh_{epoch}'
+        l_params = ExperimentParams(epoch, len(x_train) + len(x_test), 0.7)
+
+        perceptron_tanh = MLPClassifier(hidden_layer_sizes=(), activation='tanh', max_iter=epoch,
+                                        random_state=42, solver='sgd', learning_rate_init=0.005)
+        evaluate(l_exp_name, l_params, perceptron_tanh, x_train, y_train, x_test, y_test)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+evaluate_models("breast_cancer", (-1, 1))
+evaluate_models("diabetes", (-1, 1))
